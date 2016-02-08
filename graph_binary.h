@@ -37,7 +37,7 @@ class Graph {
  public:
   unsigned int nb_nodes;
   unsigned long nb_links;
-  double total_weight;  
+  double total_weight;
 
   vector<unsigned long> degrees;
   vector<unsigned int> links;
@@ -52,8 +52,7 @@ class Graph {
   //    deg(k)=degrees[k]-degrees[k-1]
   // 4*(sum_degrees) bytes for the links
   // IF WEIGHTED 4*(sum_degrees) bytes for the weights in a separate file
-  Graph(char *filename, char *filename_w, int type);
-  
+  Graph(const char *filename, const char *filename_w, int type);
   Graph(int nb_nodes, int nb_links, double total_weight, int *degrees, int *links, float *weights);
 
   void display(void);

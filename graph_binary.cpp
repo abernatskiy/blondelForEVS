@@ -25,7 +25,7 @@ Graph::Graph() {
   total_weight = 0;
 }
 
-Graph::Graph(char *filename, char *filename_w, int type) {
+Graph::Graph(const char *filename, const char *filename_w, int type) {
   ifstream finput;
   finput.open(filename,fstream::in | fstream::binary);
 
@@ -41,7 +41,7 @@ Graph::Graph(char *filename, char *filename_w, int type) {
   // Read links: 4 bytes for each link (each link is counted twice)
   nb_links=degrees[nb_nodes-1];
   links.resize(nb_links);
-  finput.read((char *)(&links[0]), (long)nb_links*8);  
+  finput.read((char *)(&links[0]), (long)nb_links*8);
 
   // IF WEIGHTED : read weights: 4 bytes for each link (each link is counted twice)
   weights.resize(0);
@@ -50,8 +50,8 @@ Graph::Graph(char *filename, char *filename_w, int type) {
     ifstream finput_w;
     finput_w.open(filename_w,fstream::in | fstream::binary);
     weights.resize(nb_links);
-    finput_w.read((char *)&weights[0], (long)nb_links*4);  
-  }    
+    finput_w.read((char *)&weights[0], (long)nb_links*4);
+  }
 
   // Compute total weight
   for (unsigned int i=0 ; i<nb_nodes ; i++) {

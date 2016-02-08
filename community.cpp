@@ -18,7 +18,7 @@
 
 using namespace std;
 
-Community::Community(char * filename, char * filename_w, int type, int nbp, double minm) {
+Community::Community(const char * filename, const char * filename_w, int type, int nbp, double minm) {
   g = Graph(filename, filename_w, type);
   size = g.nb_nodes;
 
