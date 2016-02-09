@@ -74,6 +74,8 @@ class Graph {
 
   // return pointers to the first neighbor and first weight of the node
   inline pair<vector<unsigned int>::iterator, vector<float>::iterator > neighbors(unsigned int node);
+
+	inline unsigned int first_link_idx(unsigned int node);
 };
 
 
@@ -131,5 +133,17 @@ Graph::neighbors(unsigned int node) {
     return make_pair(links.begin()+degrees[node-1], weights.begin());
 }
 
+inline unsigned int
+Graph::first_link_idx(unsigned int node) {
+	if(node == 0)
+		return 0;
+	else
+		return degrees[node-1];
+}
 
+/*inline void
+Graph::assign_link_and_weights(unsigned int node, unsigned int otherNode, double weight) {
+	for(int k=first_link_idx(node); k<degrees[node]; k++) {
+		if
+*/
 #endif // GRAPH_H

@@ -99,6 +99,9 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 	assert(annTopology.size() > 0); // self-connected networks not supported yet
 
 	auto weightStrings = split(annGenotype, ' ');
+	vector<double> weightsG;
+	weightsG.resize(weightStrings.size()-1);
+	transform(weightStrings.begin()+1, weightStrings.end(), weightsG.begin(), [](string s){return stod(s);});
 
 	unsigned int nbWeakLinks; // number of links including zero-weight ones
 
@@ -123,13 +126,13 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 	}
 
 	// Make sure we have enough values
-	assert(nbWeakLinks+1 == weightStrings.size());
+	assert(nbWeakLinks == weightsG.size());
 
 	// Iterate through entire topology to find:
 	//  - nb_links
 	//  - total_weight
 	//  - noncumulative degrees
-	int curLayerSize, prevLayerSize, inNode, outNode, floor=0, pos=1;
+	int curLayerSize, prevLayerSize, inNode, outNode, floor=0, pos=0;
 	double curWeight;
 	total_weight = 0.0;
 	nb_links = 0;
@@ -139,7 +142,7 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 		curLayerSize = iabs(*(it)); prevLayerSize = iabs(*(it-1));
 		for(int i=0; i<prevLayerSize; i++) {
 			for(int j=0; j<curLayerSize; j++) {
-				curWeight = stod(weightStrings[pos]);
+				curWeight = weightsG[pos];
 				pos++;
 				if(curWeight != 0.0) {
 					nb_links++;
@@ -154,7 +157,7 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 		if((*it) < 0) {
 			for(int i=0; i<curLayerSize; i++) {
 				for(int j=0; j<curLayerSize; j++) {
-					curWeight = stod(weightStrings[pos]);
+					curWeight = weightsG[pos];
 					pos++;
 					if(curWeight != 0.0) {
 						nb_links++;
@@ -167,6 +170,69 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 			}
 		}
 	}
+	nb_links *= 2;
+	total_weight *= 2.0;
+
+	// Obtain cumulative degree
+	for(auto it=degrees.begin()+1; it!=degrees.end(); it++)
+		*it += *(it-1);
+
+	// Iterate through entire topology once more to find links and weights
+	links.resize(nb_links);
+	weights.resize(nb_links);
+	vector<unsigned int> linksFound;
+	linksFound.resize(nb_nodes);
+	fill(linksFound.begin(), linksFound.end(), 0);
+	pos=0; floor=0;
+	int outLinkPos, inLinkPos;
+	for(auto it=annTopology.begin()+1; it!=annTopology.end(); it++) {
+		curLayerSize = iabs(*(it)); prevLayerSize = iabs(*(it-1));
+		for(int i=0; i<prevLayerSize; i++) {
+			for(int j=0; j<curLayerSize; j++) {
+				curWeight = weightsG[pos];
+				pos++;
+				if(curWeight != 0.0) {
+					outNode = floor + i;
+					inNode = floor + prevLayerSize + j;
+
+					outLinkPos = first_link_idx(outNode)+linksFound[outNode];
+					links[outLinkPos] = inNode;
+					weights[outLinkPos] = curWeight;
+					linksFound[outNode]++;
+
+					inLinkPos = first_link_idx(inNode)+linksFound[inNode];
+					links[inLinkPos] = inNode;
+					weights[inLinkPos] = curWeight;
+					linksFound[inNode]++;
+				}
+			}
+		}
+		floor += prevLayerSize;
+		if((*it) < 0) {
+			for(int i=0; i<curLayerSize; i++) {
+				for(int j=0; j<curLayerSize; j++) {
+					curWeight = stod(weightStrings[pos]);
+					pos++;
+					if(curWeight != 0.0) {
+						outNode = floor + i;
+						inNode = floor + j;
+
+						outLinkPos = first_link_idx(outNode)+linksFound[outNode];
+						links[outLinkPos] = inNode;
+						weights[outLinkPos] = curWeight;
+						linksFound[outNode]++;
+
+						inLinkPos = first_link_idx(inNode)+linksFound[inNode];
+						links[inLinkPos] = inNode;
+						weights[inLinkPos] = curWeight;
+						linksFound[inNode]++;
+					}
+				}
+			}
+		}
+	}
+
+
 }
 
 void
