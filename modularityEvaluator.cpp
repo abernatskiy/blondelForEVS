@@ -38,6 +38,11 @@ int main(int argc, char **argv)
 {
 	srand(RANDOM_SEED);
 	std::vector<int> topology = {4, -2, 2};
+
+	Graph testGraph2("41 1 0 0 1 0 0.5 0.5 0 0.2 0.5 -0.5 -0.2 1 0.1 0 1", topology);
+	printGraph(testGraph2);
+	testGraph2.display();
+
 	Graph testGraph1("42 1 0 0 1 0 0.5 0.5 0 0 0 0 0 1 0.1 0 1", topology);
 	printGraph(testGraph1);
 	testGraph1.display();

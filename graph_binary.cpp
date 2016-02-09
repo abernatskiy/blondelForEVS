@@ -201,7 +201,7 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 					linksFound[outNode]++;
 
 					inLinkPos = first_link_idx(inNode)+linksFound[inNode];
-					links[inLinkPos] = inNode;
+					links[inLinkPos] = outNode;
 					weights[inLinkPos] = curWeight;
 					linksFound[inNode]++;
 				}
@@ -217,13 +217,13 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 						outNode = floor + i;
 						inNode = floor + j;
 
-						outLinkPos = first_link_idx(outNode)+linksFound[outNode];
+						outLinkPos = first_link_idx(outNode)+linksFound[outNode]; // DEBUG!!
 						links[outLinkPos] = inNode;
 						weights[outLinkPos] = curWeight;
 						linksFound[outNode]++;
 
 						inLinkPos = first_link_idx(inNode)+linksFound[inNode];
-						links[inLinkPos] = inNode;
+						links[inLinkPos] = outNode;
 						weights[inLinkPos] = curWeight;
 						linksFound[inNode]++;
 					}
@@ -231,8 +231,6 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 			}
 		}
 	}
-
-
 }
 
 void
