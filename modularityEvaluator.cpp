@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <vector>
 
 #include "graph_binary.h"
 #include "community.h"
@@ -19,31 +20,51 @@ int k1 = 16;
 
 bool verbose = false;
 
+void printGraph(const Graph& g)
+{
+	std::cout << "Nodes: " << g.nb_nodes << " links: " << g.nb_links << " totalWeight: " << g.total_weight << "\nDegrees:";
+	for(auto d : g.degrees)
+		std::cout << " " << d;
+//	std::cout << "\nLinks:";
+//	for(auto l : g.links)
+//		std::cout << " " << l;
+//	std::cout << "\nWeights:";
+//	for(auto w : g.weights)
+//		std::cout << " " << w;
+	std::cout << std::endl;
+};
+
 int main(int argc, char **argv)
 {
 	srand(RANDOM_SEED);
-	std::string inputFile("graph.bin");
-	std::string weightsFile("graph.wgt");
-	Community c(inputFile.c_str(), NULL, type, -1, precision);
+	std::vector<int> topology = {4, -2, 2};
+	Graph testGraph1("42 1 0 0 1 0 0.5 0.5 0 0 0 0 0 1 0.1 0 1", topology);
+	printGraph(testGraph1);
+//	testGraph1.display();
+
+//	std::string inputFile("graph.bin");
+//	std::string weightsFile("graph.wgt");
+//	Graph testGraph0(inputFile.c_str(), weightsFile.c_str(), WEIGHTED);
+//	printGraph(testGraph0);
+//	testGraph0.display();
+
+//	Community c(inputFile.c_str(), NULL, type, -1, precision);
 //	type = WEIGHTED;
 //	Community c(inputFile.c_str(), weightsFile.c_str(), type, -1, precision);
-	Graph g;
+/*	Graph g;
 	bool improvement = true;
 	double new_mod;
-//	int level = 0;
 
 	do {
 		improvement = c.one_level();
 		new_mod = c.modularity();
-//		if (++level==display_level)
-//			g.display();
-//		if (display_level==-1)
-//			c.display_partition();
 		g = c.partition2graph_binary();
 		c = Community(g, -1, precision);
 
 	} while(improvement);
 
-  std::cout << new_mod << endl;
+  std::cout << new_mod << endl;*/
+
+	return 0;
 }
 
