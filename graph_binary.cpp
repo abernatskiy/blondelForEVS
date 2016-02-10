@@ -280,6 +280,16 @@ Graph::display_reverse() {
   }
 }
 
+void
+Graph::display_raw() {
+	cout << "Nodes: " << nb_nodes << " links: " << nb_links << " totalWeight: " << total_weight << "\nDegrees:";
+	for(auto d : degrees) cout << " " << d;
+	cout << "\nLinks:";
+	for(auto l : links) cout << " " << l;
+	cout << "\nWeights:";
+	for(auto w : weights) cout << " " << w;
+	cout << endl;
+}
 
 bool
 Graph::check_symmetry() {

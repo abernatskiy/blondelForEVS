@@ -60,8 +60,8 @@ class Graph {
   void display(void);
   void display_reverse(void);
   void display_binary(char *outfile);
+	void display_raw(void);
   bool check_symmetry();
-
 
   // return the number of neighbors (degree) of the node
   inline unsigned int nb_neighbors(unsigned int node);
