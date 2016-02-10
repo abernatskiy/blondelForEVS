@@ -39,19 +39,29 @@ int main(int argc, char **argv)
 	srand(RANDOM_SEED);
 	std::vector<int> topology = {4, -2, 2};
 
-	Graph testGraph2("41 1 0 0 1 0 0.5 0.5 0 0.2 0.5 -0.5 -0.2 1 0.1 0 1", topology);
-	printGraph(testGraph2);
-	testGraph2.display();
+	std::cout << "Testing non-recurrent network...\n";
+
+	std::string inputFile("tests/nonrecurrentGraph.bin");
+	std::string weightsFile("tests/nonrecurrentGraph.wgt");
+	Graph testGraph0(inputFile.c_str(), weightsFile.c_str(), WEIGHTED);
+	printGraph(testGraph0);
+	testGraph0.display();
 
 	Graph testGraph1("42 1 0 0 1 0 0.5 0.5 0 0 0 0 0 1 0.1 0 1", topology);
 	printGraph(testGraph1);
 	testGraph1.display();
 
-	std::string inputFile("graph.bin");
-	std::string weightsFile("graph.wgt");
-	Graph testGraph0(inputFile.c_str(), weightsFile.c_str(), WEIGHTED);
-	printGraph(testGraph0);
-	testGraph0.display();
+	std::cout << std::endl << "Testing network with recurrent connections...\n";
+
+	inputFile = "tests/recurrentGraph.bin";
+	weightsFile = "tests/recurrentGraph.wgt";
+	Graph testGraph2(inputFile.c_str(), weightsFile.c_str(), WEIGHTED);
+	printGraph(testGraph2);
+	testGraph2.display();
+
+	Graph testGraph3("41 1 0 0 1 0 0.5 0.5 0 0.2 0.5 -0.5 -0.2 1 0.1 0 1", topology);
+	printGraph(testGraph3);
+	testGraph3.display();
 
 //	Community c(inputFile.c_str(), NULL, type, -1, precision);
 //	type = WEIGHTED;
