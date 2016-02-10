@@ -20,20 +20,6 @@ int k1 = 16;
 
 bool verbose = false;
 
-void printGraph(const Graph& g)
-{
-	std::cout << "Nodes: " << g.nb_nodes << " links: " << g.nb_links << " totalWeight: " << g.total_weight << "\nDegrees:";
-	for(auto d : g.degrees)
-		std::cout << " " << d;
-	std::cout << "\nLinks:";
-	for(auto l : g.links)
-		std::cout << " " << l;
-	std::cout << "\nWeights:";
-	for(auto w : g.weights)
-		std::cout << " " << w;
-	std::cout << std::endl;
-};
-
 int main(int argc, char **argv)
 {
 	srand(RANDOM_SEED);

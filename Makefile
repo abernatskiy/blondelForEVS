@@ -4,11 +4,17 @@ CC=g++
 CFLAGS=-std=c++11 -O2 -msse2 -ffast-math -m64 -fno-rtti -fno-exceptions -fno-stack-protector ${MORECFLAGS} -g -ggdb -Wall
 LDFLAGS=-m64 -g -ggdb -Wall
 EXEC=modularityEvaluator
+TESTS=tests/testGraph
 OBJ1= graph_binary.o community.o
 
 all: $(EXEC)
 
+tests: ${TESTS}
+
 modularityEvaluator : $(OBJ1) modularityEvaluator.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+tests/testGraph : graph_binary.o tests/testGraph.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 ##########################################
