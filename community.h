@@ -44,17 +44,21 @@ class Community {
   // if -1, compute as many pass as needed to increase modularity
   int nb_pass;
 
-  // a new pass is computed if the last one has generated an increase 
+  // a new pass is computed if the last one has generated an increase
   // greater than min_modularity
   // if 0. even a minor increase is enough to go for one more pass
   double min_modularity;
 
   // constructors:
+  // from graph
+  Community (Graph g, int nb_pass, double min_modularity);
   // reads graph from file using graph constructor
   // type defined the weighted/unweighted status of the graph file
-  Community (const char *filename, const char *filename_w, int type, int nb_pass, double min_modularity);
-  // copy graph
-  Community (Graph g, int nb_pass, double min_modularity);
+  Community (const char *filename, const char *filename_w, int type, int nb_pass, double min_modularity) :
+		Community(Graph(filename, filename_w, type), nb_pass, min_modularity) {};
+	// constructs graph from an ANN genotype
+	Community (const string& annGenotype, const vector<int>& annTopology, int nb_pass, double min_modularity) :
+		Community(Graph(annGenotype, annTopology), nb_pass, min_modularity) {};
 
   // initiliazes the partition with something else than all nodes alone
   void init_partition(char *filename_part);

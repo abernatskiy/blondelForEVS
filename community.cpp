@@ -18,28 +18,6 @@
 
 using namespace std;
 
-Community::Community(const char * filename, const char * filename_w, int type, int nbp, double minm) {
-  g = Graph(filename, filename_w, type);
-  size = g.nb_nodes;
-
-  neigh_weight.resize(size,-1);
-  neigh_pos.resize(size);
-  neigh_last=0;
-
-  n2c.resize(size);
-  in.resize(size);
-  tot.resize(size);
-
-  for (int i=0 ; i<size ; i++) {
-    n2c[i] = i;
-    tot[i] = g.weighted_degree(i);
-    in[i]  = g.nb_selfloops(i);
-  }
-
-  nb_pass = nbp;
-  min_modularity = minm;
-}
-
 Community::Community(Graph gc, int nbp, double minm) {
   g = gc;
   size = g.nb_nodes;
@@ -71,7 +49,7 @@ Community::init_partition(char * filename) {
   while (!finput.eof()) {
     unsigned int node, comm;
     finput >> node >> comm;
-    
+
     if (finput) {
       int old_comm = n2c[node];
       neigh_comm(node);
