@@ -135,6 +135,7 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 	int curLayerSize, prevLayerSize, inNode, outNode, floor=0, pos=0;
 	double curWeight;
 	total_weight = 0.0;
+	int recurrentLinks = 0;
 	nb_links = 0;
 	degrees.resize(nb_nodes);
 	fill(degrees.begin(), degrees.end(), 0);
@@ -160,17 +161,18 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 					curWeight = weightsG[pos];
 					pos++;
 					if(curWeight != 0.0) {
-						nb_links++;
+						recurrentLinks++;
 						total_weight += curWeight;
 						outNode = floor + i;
 						inNode = floor + j;
-						degrees[outNode]++; degrees[inNode]++;
+						degrees[outNode]++;
+//						if(inNode != outNode) degrees[inNode]++;
 					}
 				}
 			}
 		}
 	}
-	nb_links *= 2;
+	nb_links = 2*nb_links + recurrentLinks;
 	total_weight *= 2.0;
 
 	// Obtain cumulative degree
@@ -185,6 +187,7 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 	fill(linksFound.begin(), linksFound.end(), 0);
 	pos=0; floor=0;
 	int outLinkPos, inLinkPos;
+
 	for(auto it=annTopology.begin()+1; it!=annTopology.end(); it++) {
 		curLayerSize = iabs(*(it)); prevLayerSize = iabs(*(it-1));
 		for(int i=0; i<prevLayerSize; i++) {
@@ -208,29 +211,41 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 			}
 		}
 		floor += prevLayerSize;
+
 		if((*it) < 0) {
 			for(int i=0; i<curLayerSize; i++) {
 				for(int j=0; j<curLayerSize; j++) {
-					curWeight = stod(weightStrings[pos]);
+					curWeight = weightsG[pos];
 					pos++;
 					if(curWeight != 0.0) {
 						outNode = floor + i;
 						inNode = floor + j;
 
-						outLinkPos = first_link_idx(outNode)+linksFound[outNode]; // DEBUG!!
+						outLinkPos = first_link_idx(outNode)+linksFound[outNode];
 						links[outLinkPos] = inNode;
 						weights[outLinkPos] = curWeight;
 						linksFound[outNode]++;
 
-						inLinkPos = first_link_idx(inNode)+linksFound[inNode];
-						links[inLinkPos] = outNode;
-						weights[inLinkPos] = curWeight;
-						linksFound[inNode]++;
+//						if(inNode != outNode) {
+//							inLinkPos = first_link_idx(inNode)+linksFound[inNode];
+//							links[inLinkPos] = outNode;
+//							weights[inLinkPos] = curWeight;
+//							linksFound[inNode]++;
+//						}
 					}
 				}
 			}
 		}
 	}
+
+	/* This function may involve a bit of graph rewriting in future, since ANNs are
+	   directional and the networks described in Blondel are not. When we have the situation
+	   when there are two nodes in the hidden layer connected recursively in both ways, but
+	   with nonequal weights in forward and backward directions, the reduction to the
+	   nondirected network becomes ambiguous. This isn't dealt with for now.
+
+	   Additionally, we may want to take absolute values of all weights.
+	 */
 }
 
 void

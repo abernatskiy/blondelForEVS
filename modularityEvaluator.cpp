@@ -55,11 +55,12 @@ int main(int argc, char **argv)
 
 	inputFile = "tests/recurrentGraph.bin";
 	weightsFile = "tests/recurrentGraph.wgt";
+//	Graph testGraph2(inputFile.c_str(), weightsFile.c_str(), UNWEIGHTED);
 	Graph testGraph2(inputFile.c_str(), weightsFile.c_str(), WEIGHTED);
 	printGraph(testGraph2);
 	testGraph2.display();
 
-	Graph testGraph3("41 1 0 0 1 0 0.5 0.5 0 0.2 0.5 -0.5 -0.2 1 0.1 0 1", topology);
+	Graph testGraph3("41 1 0 0 1 0 0.5 0.5 0 0.2 0.5 0 -0.2 1 0.1 0 1", topology);
 	printGraph(testGraph3);
 	testGraph3.display();
 
