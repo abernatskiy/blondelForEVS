@@ -57,6 +57,8 @@ class Graph {
 //  Graph(int nb_nodes, int nb_links, double total_weight, int *degrees, int *links, float *weights);
 	Graph(const string& annGenotype, const vector<int>& annTopology);
 
+	void sanitize(void); // rewrites the graph such that: 1. all weights are positive; 2. forward and backward connections have equal weights
+
   void display(void);
   void display_reverse(void);
   void display_binary(char *outfile);
@@ -75,7 +77,12 @@ class Graph {
   // return pointers to the first neighbor and first weight of the node
   inline pair<vector<unsigned int>::iterator, vector<float>::iterator > neighbors(unsigned int node);
 
-	inline unsigned int first_link_idx(unsigned int node);
+	// return whether there is a connection which goes FROM i TO J as indicated by links
+	inline bool has_directed_connection(unsigned int i, unsigned int j) const;
+
+	inline unsigned int first_link_idx(unsigned int node) const;
+
+	inline void assign_weight(unsigned int i, unsigned int j, float wgt);
 };
 
 
@@ -134,16 +141,26 @@ Graph::neighbors(unsigned int node) {
 }
 
 inline unsigned int
-Graph::first_link_idx(unsigned int node) {
-	if(node == 0)
-		return 0;
-	else
-		return degrees[node-1];
+Graph::first_link_idx(unsigned int node) const {
+	return node==0 ? 0 : degrees[node-1];
 }
 
-/*inline void
-Graph::assign_link_and_weights(unsigned int node, unsigned int otherNode, double weight) {
-	for(int k=first_link_idx(node); k<degrees[node]; k++) {
-		if
-*/
+inline bool
+Graph::has_directed_connection(unsigned int outNode, unsigned int inNode) const {
+	bool retval = false;
+	for(unsigned int ln=first_link_idx(outNode); ln<degrees[outNode]; ln++) {
+		if(links[ln] == inNode)
+			retval = true;
+	}
+	return retval;
+}
+
+inline void
+Graph::assign_weight(unsigned int outNode, unsigned int inNode, float wgt) {
+	for(unsigned int ln=first_link_idx(outNode); ln<degrees[outNode]; ln++) {
+		if(links[ln] == inNode)
+			weights[ln] = wgt;
+	}
+}
+
 #endif // GRAPH_H

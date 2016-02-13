@@ -17,6 +17,8 @@
 #include <sys/mman.h>
 #include <fstream>
 #include <sstream>
+#include <map>
+#include <utility>
 #include "graph_binary.h"
 #include "math.h"
 
@@ -166,7 +168,7 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 						outNode = floor + i;
 						inNode = floor + j;
 						degrees[outNode]++;
-//						if(inNode != outNode) degrees[inNode]++;
+						// if(inNode != outNode) degrees[inNode]++;
 					}
 				}
 			}
@@ -226,12 +228,12 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 						weights[outLinkPos] = curWeight;
 						linksFound[outNode]++;
 
-//						if(inNode != outNode) {
-//							inLinkPos = first_link_idx(inNode)+linksFound[inNode];
-//							links[inLinkPos] = outNode;
-//							weights[inLinkPos] = curWeight;
-//							linksFound[inNode]++;
-//						}
+						// if(inNode != outNode) {
+						// inLinkPos = first_link_idx(inNode)+linksFound[inNode];
+						// links[inLinkPos] = outNode;
+						// weights[inLinkPos] = curWeight;
+						// linksFound[inNode]++;
+						// }
 					}
 				}
 			}
@@ -246,6 +248,68 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 
 	   Additionally, we may want to take absolute values of all weights.
 	 */
+}
+
+void
+Graph::sanitize() {
+	// Enforcing positive weights everywhere by taking the absolute value of each weight
+	for(auto wgt : weights)
+		wgt = fabs(wgt);
+
+	// Enforcing the equality of opposite connections
+	typedef pair<unsigned int, unsigned int> Connection;
+	typedef map<Connection, float> WeightMap;
+
+	WeightMap wm;
+	for(unsigned int node=0; node<nb_nodes; node++) {
+		for(unsigned int ln=first_link_idx(node); ln<degrees[node]; ln++) {
+//			cout << "node: " << node << " links[ln]: " << links[ln] << endl;
+			auto oppositeConnIt = wm.find(Connection(links[ln], node));
+			if(oppositeConnIt != wm.end() && oppositeConnIt->second == weights[ln]) {
+					wm.erase(oppositeConnIt);
+					continue;
+			}
+			wm[Connection(node, links[ln])] = weights[ln];
+		}
+	}
+
+	// Rewrite the connections
+	for(auto wmit=wm.begin(); wmit!=wm.end(); wmit++) {
+		unsigned int i, j;
+		i = (wmit->first).first;
+		j = (wmit->first).second;
+
+		if(i==j)
+			continue;
+
+		auto oppositeConnIt = wm.find(Connection(j, i));
+		if(oppositeConnIt != wm.end()) {
+			// if there is an opposing connection with a different weight, set the weight of each to the sum
+			float sumWeight = wmit->second + oppositeConnIt->second;
+			assign_weight(i, j, sumWeight);
+			assign_weight(j, i, sumWeight);
+		}
+		else {
+			// if there is no opposing connection, create one with equal weight
+			unsigned int pos = first_link_idx(j);
+			while(pos <= degrees[j]) {
+				if(links[pos] > i)
+					break;
+				else
+					pos++;
+			}
+			links.insert(links.begin()+pos, i);
+			weights.insert(weights.begin()+pos, wmit->second);
+			for(unsigned int degPos=j; degPos<nb_nodes; degPos++)
+				degrees[degPos]++;
+			nb_links++;
+		}
+	}
+
+	// Recompute the total weight
+	total_weight = 0.0;
+	for(auto w : weights)
+		total_weight += w;
 }
 
 void
