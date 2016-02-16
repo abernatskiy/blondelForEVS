@@ -5,7 +5,7 @@ CFLAGS=-std=c++11 -O2 -msse2 -ffast-math -m64 -fno-rtti -fno-exceptions -fno-sta
 LDFLAGS=-m64 -g -ggdb -Wall
 EXEC=modularityEvaluator
 TESTS=tests/testGraph
-OBJ1= graph_binary.o community.o
+OBJ1= graph_binary.o community.o pareto.o
 
 all: $(EXEC)
 
@@ -15,6 +15,9 @@ modularityEvaluator : $(OBJ1) modularityEvaluator.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 tests/testGraph : graph_binary.o tests/testGraph.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+tests/testPareto : pareto.o tests/testPareto.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 ##########################################
