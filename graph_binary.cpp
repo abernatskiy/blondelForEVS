@@ -19,6 +19,7 @@
 #include <sstream>
 #include <map>
 #include <utility>
+#include <algorithm>
 #include "graph_binary.h"
 #include "math.h"
 
@@ -253,8 +254,7 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 void
 Graph::sanitize() {
 	// Enforcing positive weights everywhere by taking the absolute value of each weight
-	for(auto wgt : weights)
-		wgt = fabs(wgt);
+	transform(weights.begin(), weights.end(), weights.begin(), [](double x){return fabs(x);});
 
 	// Enforcing the equality of opposite connections
 	typedef pair<unsigned int, unsigned int> Connection;

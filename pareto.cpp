@@ -9,7 +9,7 @@ bool firstDominatesSecond(const ObjSpacePoint& first, const ObjSpacePoint& secon
 	// the objectives are minimized
 	bool dominates = true;
 	for(unsigned int i=0; i<first.size(); i++)
-		if(second[i] <= first[i])
+		if(second[i] >= first[i])
 			dominates = false;
 	return dominates;
 }

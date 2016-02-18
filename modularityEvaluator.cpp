@@ -22,7 +22,10 @@
 
 double modularity(const std::string& annGenotype, const std::vector<int>& annTopology) {
 	Community c(annGenotype, annTopology, -1, PRECISION);
+//	c.g.display();
 	c.g.sanitize();
+//	c.g.display();
+//	std::cout << "\n";
 	Graph g;
 	bool improvement = true;
 	double new_mod;
@@ -38,7 +41,7 @@ double modularity(const std::string& annGenotype, const std::vector<int>& annTop
 int main(int argc, char **argv) {
 	srand(RANDOM_SEED);
 	std::vector<int> annTopology = {4, -2, 2};
-/*
+
 	std::ifstream ifs;
 	ifs.open("population0.txt");
 	assert(ifs.is_open());
@@ -63,23 +66,19 @@ int main(int argc, char **argv) {
 		}
 
 		for(unsigned int i=0; i<fitness.size(); i++)
-			std::cout << modularity(genomes[i], annTopology) << "\t\t" << genomes[i] << std::endl;
-
-//		for(unsigned int i=0; i<fitness.size(); i++)
-//			updateParetoFront(pf, {-1.*fitness[i], -1.*modularity(genomes[i], annTopology)}, genomes[i]);
-		// !!!!!!!!!!! CHECK MODULARITY VALUES - THEY LOOK WEIRD
+			updateParetoFront(pf, {fitness[i], modularity(genomes[i], annTopology)}, genomes[i]);
 
 //		std::cout << str(pf) << "\n\n"; // DEBUG
 
-//		std::cout << "Pareto front:\n";
-//		printParetoFront(pf);
-//		std::cout << "\n\n";
+		std::cout << "Pareto front:\n";
+		printParetoFront(pf);
+		std::cout << "\n\n";
 	}
 
 	ifs.close();
-*/
 
 
+/*
 	std::vector<std::string> annGenomes = {
 		"43 1 0 0 1 0 0.5 0.5 0 0 0 0 0 1 0.1 0 1",
 		"42 1 0 0 1 0 0.5 0.5 0 0 0 0 0 1 0.9 0 1",
@@ -92,7 +91,7 @@ int main(int argc, char **argv) {
 	};
 	for(auto gen : annGenomes)
 	  std::cout << gen << " Q:" << modularity(gen, annTopology) << std::endl;
-
+*/
 	return 0;
 }
 
