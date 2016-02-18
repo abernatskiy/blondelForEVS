@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
 	std::vector<int> annTopology = {4, -2, 2};
 
 	std::ifstream ifs;
-	ifs.open("population0.txt");
+	ifs.open("population0.log");
 	assert(ifs.is_open());
 
 	std::vector<double> fitness;
@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
 	ifs.close();
 
 	std::ofstream ofs;
-	ofs.open("paretoFrontOfFitnessVsModularity.txt", std::ofstream::out | std::ofstream::trunc);
+	ofs.open("paretoFrontOfFitnessVsModularity.log", std::ofstream::out | std::ofstream::trunc);
 	assert(ofs.is_open());
 	ofs << "# Columns: score modularity id indivDesc0 indivDesc2 ...\n";
 	ofs << str(pf);
