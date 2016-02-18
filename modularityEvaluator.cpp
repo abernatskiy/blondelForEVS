@@ -68,6 +68,8 @@ int main(int argc, char **argv) {
 		for(unsigned int i=0; i<fitness.size(); i++)
 			updateParetoFront(pf, {fitness[i], modularity(genomes[i], annTopology)}, genomes[i]);
 
+		fitness.clear();
+		genomes.clear();
 //		std::cout << str(pf) << "\n\n"; // DEBUG
 
 		std::cout << "Pareto front:\n";

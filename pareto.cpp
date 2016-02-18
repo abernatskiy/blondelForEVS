@@ -20,6 +20,9 @@ void updateParetoFront(ParetoFront& pf, ObjSpacePoint osp, std::string genome) {
 
 	if(pfRecord != pf.end()) {
 		// if yes, just append the genome to the vector of the previosly encountered genomes with the same pair
+//		std::cout << "Appending genome " << genome << " to the following vector:\n";
+//		for(auto curGen : pfRecord->second)
+//			std::cout << curGen << "\n";
 		(pfRecord->second).push_back(genome);
 	}
 	else {
