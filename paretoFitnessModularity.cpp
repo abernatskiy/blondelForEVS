@@ -87,13 +87,20 @@ int main(int argc, char **argv) {
 		fitness.clear();
 		genomes.clear();
 
-		std::cout << "Pareto front:\n";
-		printParetoFront(pf);
-		std::cout << "Alternative representation:\n";
-		std::cout << str(pf) << "\n\n";
+//		std::cout << "Pareto front:\n";
+//		printParetoFront(pf);
+//		std::cout << "Alternative representation:\n";
+//		std::cout << str(pf) << "\n\n";
 	}
 
 	ifs.close();
+
+	std::ofstream ofs;
+	ofs.open("paretoFrontOfFitnessVsModularity.txt", std::ofstream::out | std::ofstream::trunc);
+	assert(ofs.is_open());
+	ofs << "# Columns: score modularity id indivDesc0 indivDesc2 ...\n";
+	ofs << str(pf);
+	ofs.close();
 
 	return 0;
 }
