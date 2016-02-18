@@ -36,6 +36,22 @@ double modularity(const std::string& annGenotype, const std::vector<int>& annTop
 		c = Community(g, -1, PRECISION);
 	} while(improvement);
 	return new_mod;
+/*
+	Test:
+
+	std::vector<std::string> annGenomes = {
+		"43 1 0 0 1 0 0.5 0.5 0 0 0 0 0 1 0.1 0 1",
+		"42 1 0 0 1 0 0.5 0.5 0 0 0 0 0 1 0.9 0 1",
+		"41 1 0 0 1 0 0.5 0.5 0 0.2 0.5 0.5 0.2 1 0.1 0 1",
+		"40 1 0 0 1 0 0.5 0.5 0 0.2 0.5 0.4 0.2 1 0.1 0 1",
+		"39 1 0 0 1 0 0.5 0.5 0 0.2 0 0.5 0.2 1 0.1 0 1",
+		"38 1 0 0 1 0 0.5 0.5 0 0.2 0 0.5 0.2 1 0.1 0 1",
+		"37 1 0 0 -1 0 0.5 -0.5 0 -0.2 0 -0.5 0.2 -1 0.1 0 -1",
+		"36 -1 0 0 -1 0 -0.5 -0.5 0 -0.2 0 -0.5 -0.2 -1 -0.1 0 -1"
+	};
+	for(auto gen : annGenomes)
+	  std::cout << gen << " Q:" << modularity(gen, annTopology) << std::endl;
+*/
 }
 
 int main(int argc, char **argv) {
@@ -70,30 +86,15 @@ int main(int argc, char **argv) {
 
 		fitness.clear();
 		genomes.clear();
-//		std::cout << str(pf) << "\n\n"; // DEBUG
 
 		std::cout << "Pareto front:\n";
 		printParetoFront(pf);
-		std::cout << "\n\n";
+		std::cout << "Alternative representation:\n";
+		std::cout << str(pf) << "\n\n";
 	}
 
 	ifs.close();
 
-
-/*
-	std::vector<std::string> annGenomes = {
-		"43 1 0 0 1 0 0.5 0.5 0 0 0 0 0 1 0.1 0 1",
-		"42 1 0 0 1 0 0.5 0.5 0 0 0 0 0 1 0.9 0 1",
-		"41 1 0 0 1 0 0.5 0.5 0 0.2 0.5 0.5 0.2 1 0.1 0 1",
-		"40 1 0 0 1 0 0.5 0.5 0 0.2 0.5 0.4 0.2 1 0.1 0 1",
-		"39 1 0 0 1 0 0.5 0.5 0 0.2 0 0.5 0.2 1 0.1 0 1",
-		"38 1 0 0 1 0 0.5 0.5 0 0.2 0 0.5 0.2 1 0.1 0 1",
-		"37 1 0 0 -1 0 0.5 -0.5 0 -0.2 0 -0.5 0.2 -1 0.1 0 -1",
-		"36 -1 0 0 -1 0 -0.5 -0.5 0 -0.2 0 -0.5 -0.2 -1 -0.1 0 -1"
-	};
-	for(auto gen : annGenomes)
-	  std::cout << gen << " Q:" << modularity(gen, annTopology) << std::endl;
-*/
 	return 0;
 }
 

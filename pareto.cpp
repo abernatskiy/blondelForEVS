@@ -71,9 +71,11 @@ std::string str(const ObjSpacePoint& osp) {
 std::string str(const ParetoFront& pf) {
 	std::ostringstream os;
 	for(auto pfRecord : pf) {
-		os << str(pfRecord.first);
-		for(auto genome : pfRecord.second)
+		for(auto genome : pfRecord.second) {
+			os << str(pfRecord.first);
 			os << " " << genome;
+			os << "\n";
+		}
 	}
 	return os.str();
 }
