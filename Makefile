@@ -4,7 +4,7 @@ CC=g++
 CFLAGS=-std=c++11 -O2 -msse2 -ffast-math -m64 -fno-rtti -fno-exceptions -fno-stack-protector ${MORECFLAGS} -g -ggdb -Wall
 LDFLAGS=-m64 -g -ggdb -Wall
 EXEC=modularityEvaluator
-TESTS=tests/testGraph
+TESTS=tests/testGraph tests/testPareto
 OBJ1= graph_binary.o community.o pareto.o
 
 all: $(EXEC)
@@ -31,4 +31,4 @@ tests/testPareto : pareto.o tests/testPareto.o
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 clean:
-	rm -f *.o *~ $(EXEC)
+	rm -f *.o *~ $(EXEC) ${TESTS}

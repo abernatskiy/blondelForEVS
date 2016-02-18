@@ -29,11 +29,11 @@ void updateParetoFront(ParetoFront& pf, ObjSpacePoint osp, std::string genome) {
 			if(firstDominatesSecond(curPfRecord.first, osp))
 				return;
 		}
-		std::cout << "Point " << str(osp) << " is nondominated!\n";
+//		std::cout << "Point " << str(osp) << " is nondominated!\n";
 		// next, check whether it dominates any previous records and if it does, delete any
 		for(auto pfit=pf.cbegin(); pfit!=pf.cend();) {
 			if(firstDominatesSecond(osp, pfit->first)) {
-				std::cout << str(osp) << " dominates " << str(pfit->first) << ", erasing the latter's record\n";
+//				std::cout << str(osp) << " dominates " << str(pfit->first) << ", erasing the latter's record\n";
 				pf.erase(pfit++);
 			}
 			else
