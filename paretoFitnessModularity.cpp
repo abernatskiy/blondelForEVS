@@ -68,6 +68,8 @@ int main(int argc, char **argv) {
 	bool lastChunk = false;
 	ParetoFront pf;
 
+	long long counter = 0;
+
 	while(!lastChunk) {
 		for(unsigned int i=0; i<FS_CHUNK; i++) {
 			if(!std::getline(ifs, curline)) {
@@ -81,8 +83,12 @@ int main(int argc, char **argv) {
 			genomes.push_back(curline.substr(spacepos+1));
 		}
 
-		for(unsigned int i=0; i<fitness.size(); i++)
+		for(unsigned int i=0; i<fitness.size(); i++) {
 			updateParetoFront(pf, {fitness[i], modularity(genomes[i], annTopology)}, genomes[i]);
+			if(counter%100000 == 0 && counter != 0)
+				std::cout << "Considered 10^5 evaluations recently. Current genome is " << genomes[i] << "\n";
+			counter++;
+		}
 
 		fitness.clear();
 		genomes.clear();
