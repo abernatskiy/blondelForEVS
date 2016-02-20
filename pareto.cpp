@@ -47,6 +47,40 @@ void updateParetoFront(ParetoFront& pf, ObjSpacePoint osp, std::string genome) {
 	}
 }
 
+void updateParetoFront(ParetoFront& pf, ObjSpacePoint osp, std::vector<std::string> genomes) {
+	// checking whether this particular pair of objective values is present in the Pareto front or not
+	auto pfRecord = pf.find(osp);
+
+	if(pfRecord != pf.end()) {
+		// if yes, just append the genomes to the vector of the previosly encountered genomes with the same pair
+		(pfRecord->second).insert((pfRecord->second).end(), genomes.begin(), genomes.end());
+	}
+	else {
+		// if no, then consider the new pair for the Pareto front
+		// first, check if the new pair is nondominated
+		for(auto curPfRecord : pf) {
+			if(firstDominatesSecond(curPfRecord.first, osp))
+				return;
+		}
+		// next, check whether it dominates any previous records and if it does, delete any
+		for(auto pfit=pf.cbegin(); pfit!=pf.cend();) {
+			if(firstDominatesSecond(osp, pfit->first)) {
+//				std::cout << str(osp) << " dominates " << str(pfit->first) << ", erasing the latter's record\n";
+				pf.erase(pfit++);
+			}
+			else
+				++pfit;
+		}
+		// last, append the point to the Pareto front and initialize its dictionary with genomes
+		pf[osp] = genomes;
+	}
+}
+
+void mergeParetoFronts(ParetoFront& pf, ParetoFront& other) {
+	for(auto pfRecord : other)
+		updateParetoFront(pf, pfRecord.first, pfRecord.second);
+}
+
 void printParetoFront(const ParetoFront& pf) {
 	for(auto pfRecord : pf) {
 		std::cout << "Objective values:";

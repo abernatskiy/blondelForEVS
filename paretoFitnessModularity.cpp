@@ -12,7 +12,7 @@
 #endif // PRECISION
 
 #ifndef FS_CHUNK
-#define FS_CHUNK 50
+#define FS_CHUNK 1000
 #endif // FS_CHUNK
 
 #include "graph_binary.h"
@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
 	std::vector<std::string> genomes;
 	std::string curline;
 	bool lastChunk = false;
-	ParetoFront pf;
+	ParetoFront pf, curPf;
 
 	long long counter = 0;
 
@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
 		}
 
 		for(unsigned int i=0; i<fitness.size(); i++) {
-			updateParetoFront(pf, {fitness[i], modularity(genomes[i], annTopology)}, genomes[i]);
+			updateParetoFront(curPf, {fitness[i], modularity(genomes[i], annTopology)}, genomes[i]);
 			if(counter%100000 == 0 && counter != 0)
 				std::cout << "Considered 10^5 evaluations recently. Current genome is " << genomes[i] << "\n";
 			counter++;
@@ -92,6 +92,9 @@ int main(int argc, char **argv) {
 
 		fitness.clear();
 		genomes.clear();
+
+		mergeParetoFronts(pf, curPf);
+		curPf.clear();
 
 //		std::cout << "Pareto front:\n";
 //		printParetoFront(pf);
