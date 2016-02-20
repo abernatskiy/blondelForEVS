@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
 	updateParetoFront(opf, {-0.3,-0.4}, "d");
 	printParetoFront(opf);
 
-	updateParetoFront(opf, {-0.4,-0.5}, "e");
+	updateParetoFront(opf, {-1,-0.2}, "e");
 	printParetoFront(opf);
 
 	updateParetoFront(opf, {-2.,-0.2}, std::vector<std::string>({"f", "g"}));
