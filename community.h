@@ -27,6 +27,10 @@
 
 #include "graph_binary.h"
 
+#ifndef OPT_PASS_LIMIT
+#define OPT_PASS_LIMIT 50
+#endif // OPT_PASS_LIMIT
+
 using namespace std;
 
 class Community {
@@ -51,14 +55,14 @@ class Community {
 
   // constructors:
   // from graph
-  Community (Graph g, int nb_pass, double min_modularity);
+  Community (Graph g, int nb_pass, double min_modularity, bool sanitize=true);
   // reads graph from file using graph constructor
   // type defined the weighted/unweighted status of the graph file
-  Community (const char *filename, const char *filename_w, int type, int nb_pass, double min_modularity) :
-		Community(Graph(filename, filename_w, type), nb_pass, min_modularity) {};
+  Community (const char *filename, const char *filename_w, int type, int nb_pass, double min_modularity, bool sanitize=true) :
+		Community(Graph(filename, filename_w, type), nb_pass, min_modularity, sanitize) {};
 	// constructs graph from an ANN genotype
-	Community (const string& annGenotype, const vector<int>& annTopology, int nb_pass, double min_modularity) :
-		Community(Graph(annGenotype, annTopology), nb_pass, min_modularity) {};
+	Community (const string& annGenotype, const vector<int>& annTopology, int nb_pass, double min_modularity, bool sanitize=true) :
+		Community(Graph(annGenotype, annTopology), nb_pass, min_modularity, sanitize) {};
 
   // initiliazes the partition with something else than all nodes alone
   void init_partition(char *filename_part);

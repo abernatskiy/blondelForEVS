@@ -18,8 +18,10 @@
 
 using namespace std;
 
-Community::Community(Graph gc, int nbp, double minm) {
+Community::Community(Graph gc, int nbp, double minm, bool sanitize) {
   g = gc;
+	if(sanitize) g.sanitize();
+
   size = g.nb_nodes;
 
   neigh_weight.resize(size,-1);
@@ -259,9 +261,9 @@ Community::one_level() {
     random_order[rand_pos] = tmp;
   }
 
-  // repeat while 
+  // repeat while
   //   there is an improvement of modularity
-  //   or there is an improvement of modularity greater than a given epsilon 
+  //   or there is an improvement of modularity greater than a given epsilon
   //   or a predefined number of pass have been done
   do {
     cur_mod = new_mod;
@@ -296,7 +298,7 @@ Community::one_level() {
 
       // insert node in the nearest community
       insert(node, best_comm, best_nblinks);
-     
+
       if (best_comm!=node_comm)
         nb_moves++;
     }
@@ -311,8 +313,10 @@ Community::one_level() {
     new_mod = modularity();
     if (nb_moves>0)
       improvement=true;
-    
-  } while (nb_moves>0 && new_mod-cur_mod>min_modularity);
+
+//		cout << nb_pass_done << " ";
+
+  } while (nb_moves>0 && new_mod-cur_mod>min_modularity && nb_pass_done<OPT_PASS_LIMIT);
 
   return improvement;
 }
