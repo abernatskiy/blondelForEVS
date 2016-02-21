@@ -245,7 +245,7 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 	while(disconnectedNodesPresent) {
 		disconnectedNodesPresent = false;
 		for(unsigned int i=0; i<nb_nodes; i++) {
-			if(first_link_idx(i) == degrees[i]) {
+			if(first_link_idx(i) == degrees[i] && find(links.begin(), links.end(), i) == links.end()) {
 //				cout << "Removing a disconnected node " << i << endl;
 				remove_disconnected_node(i);
 				disconnectedNodesPresent = true;
@@ -312,17 +312,16 @@ Graph::sanitize() {
 		else {
 			// if there is no opposing connection, create one with equal weight
 			unsigned int pos = first_link_idx(j);
-			std::cout << "inserting new connection for node " << j << " starting pos is " << pos << " cumulative degrees is " << degrees[j] << endl;
-			while(links[pos] < i) {
-				std::cout << "reading links at " << pos << ": read " << links[pos] << "\n";
-//				if(links[pos] > i)
-//					break;
-//				else
-				pos++;
-				if(pos >= degrees[j])
-					break;
+//			cout << "inserting new connection for node " << j << " starting pos is " << pos << " cumulative degrees is " << degrees[j] << endl << flush;
+			if(pos < degrees[j]) { // if there are already any connections to the target node
+				while(links[pos] < i) { // find a place to insert a new connection s.t. the links are still sorted by the number of target nodes
+//					cout << "reading links at " << pos << ": read " << links[pos] << "\n" << flush;
+					pos++;
+					if(pos >= degrees[j])
+						break;
+				}
 			}
-			std::cout << " final pos is " << pos << "\n";
+//			cout << " final pos is " << pos << "\n" << flush;
 			links.insert(links.begin()+pos, i);
 			weights.insert(weights.begin()+pos, wmit->second);
 			for(unsigned int degPos=j; degPos<nb_nodes; degPos++)

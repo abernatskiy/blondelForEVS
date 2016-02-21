@@ -56,6 +56,17 @@ int main(int argc, char **argv)
 	testGraph5.display_raw();
 	testGraph5.display();
 
+	std::cout << std::endl << "Testing sanitization...\nGenotype " << "21496296 -1.0 0.0 -1.0 0.0 -1.0 0.0 -1.0 0.0 -1.0 -1.0 0.0 0.0 0.0 0.0 0.0 0.0" << "\nBEFORE:\n";
+
+	Graph testGraph6("21496296 -1.0 0.0 -1.0 0.0 -1.0 0.0 -1.0 0.0 -1.0 -1.0 0.0 0.0 0.0 0.0 0.0 0.0", topology);
+	testGraph6.display_raw();
+	testGraph6.display();
+
+	std::cout << "AFTER:\n";
+	testGraph6.sanitize();
+	testGraph6.display_raw();
+	testGraph6.display();
+
 	return 0;
 }
 

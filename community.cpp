@@ -115,31 +115,31 @@ Community::modularity() {
 
 void
 Community::neigh_comm(unsigned int node) {
-  for (unsigned int i=0 ; i<neigh_last ; i++)
-    neigh_weight[neigh_pos[i]]=-1;
-  neigh_last=0;
+	for (unsigned int i=0 ; i<neigh_last ; i++)
+		neigh_weight[neigh_pos[i]]=-1;
+	neigh_last=0;
 
-  pair<vector<unsigned int>::iterator, vector<float>::iterator> p = g.neighbors(node);
+	pair<vector<unsigned int>::iterator, vector<float>::iterator> p = g.neighbors(node);
 
-  unsigned int deg = g.nb_neighbors(node);
+	unsigned int deg = g.nb_neighbors(node);
 
-  neigh_pos[0]=n2c[node];
-  neigh_weight[neigh_pos[0]]=0;
-  neigh_last=1;
+	neigh_pos[0]=n2c[node];
+	neigh_weight[neigh_pos[0]]=0;
+	neigh_last=1;
 
-  for (unsigned int i=0 ; i<deg ; i++) {
-    unsigned int neigh        = *(p.first+i);
-    unsigned int neigh_comm   = n2c[neigh];
-    double neigh_w = (g.weights.size()==0)?1.:*(p.second+i);
-    
-    if (neigh!=node) {
-      if (neigh_weight[neigh_comm]==-1) {
-	neigh_weight[neigh_comm]=0.;
-	neigh_pos[neigh_last++]=neigh_comm;
-      }
-      neigh_weight[neigh_comm]+=neigh_w;
-    }
-  }
+	for (unsigned int i=0 ; i<deg ; i++) {
+		unsigned int neigh        = *(p.first+i);
+		unsigned int neigh_comm   = n2c[neigh];
+		double neigh_w = (g.weights.size()==0)?1.:*(p.second+i);
+
+		if (neigh!=node) {
+			if (neigh_weight[neigh_comm]==-1) {
+				neigh_weight[neigh_comm]=0.;
+				neigh_pos[neigh_last++]=neigh_comm;
+			}
+			neigh_weight[neigh_comm]+=neigh_w;
+		}
+	}
 }
 
 void

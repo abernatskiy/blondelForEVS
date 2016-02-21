@@ -40,13 +40,13 @@ class Community {
   unsigned int neigh_last;
 
   Graph g; // network to compute communities for
-  int size; // nummber of nodes in the network and size of all vectors
+  int size; // number of nodes in the network and size of all vectors
   vector<int> n2c; // community to which each node belongs
   vector<double> in,tot; // used to compute the modularity participation of each community
 
   // number of pass for one level computation
   // if -1, compute as many pass as needed to increase modularity
-  int nb_pass;
+  int nb_pass; // duplicated by the OPT_PASS_LIMIT macro
 
   // a new pass is computed if the last one has generated an increase
   // greater than min_modularity
