@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <array>
 #include <sstream>
 
 std::vector<std::string>& split(const std::string& s, char delim, std::vector<std::string>& elems) {
@@ -13,7 +14,13 @@ std::vector<std::string>& split(const std::string& s, char delim, std::vector<st
 	return elems;
 }
 
-std::vector<std::string> split(const string& s, char delim) {
+template<int arrSize> void split(const std::string& s, char delim, std::array<std::string,arrSize>& elems) {
+	std::stringstream ss(s);
+	for(unsigned int i=0; i<arrSize; i++)
+		std::getline(ss, elems[i], delim);
+}
+
+std::vector<std::string> split(const std::string& s, char delim) {
 	std::vector<std::string> elems;
 	split(s, delim, elems);
 	return elems;
