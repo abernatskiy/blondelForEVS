@@ -137,36 +137,38 @@ int main(int argc, char **argv) {
 	ifs.open("population0.log");
 	assert(ifs.is_open());
 
-	std::vector<double> fitness;
-	std::vector<std::string> genomes;
+	std::array<double,FS_CHUNK> fitness;
+	std::array<std::string,FS_CHUNK> genomes;
 	std::string curline;
 	bool lastChunk = false;
 	ParetoFront pf, curPf;
 
 	long long counter = 0;
+	unsigned long curChunkSize = 0;
 
 	while(!lastChunk) {
-		for(unsigned int i=0; i<FS_CHUNK; i++) {
+		for(unsigned long i=0; i<FS_CHUNK; i++) {
 			if(!std::getline(ifs, curline)) {
 				lastChunk = true;
+				curChunkSize = i;
 				break;
 			}
 			if(curline[0]=='#' || curline=="")
 				continue;
 			auto spacepos = curline.find(' ');
-			fitness.push_back(std::stod(curline.substr(0, spacepos)));
-			genomes.push_back(curline.substr(spacepos+1));
+			fitness[i] = std::stod(curline.substr(0, spacepos));
+			genomes[i] = curline.substr(spacepos+1);
 		}
 
-		for(unsigned int i=0; i<fitness.size(); i++) {
+		if(!lastChunk)
+			curChunkSize = FS_CHUNK;
+
+		for(unsigned int i=0; i<curChunkSize; i++) {
 			updateParetoFront(curPf, {fitness[i], processedModularity(genomes[i], annTopology)}, genomes[i]);
 			if(counter%100000 == 0 && counter != 0)
 				std::cout << "Considered 10^5 evaluations recently. Current genome is " << genomes[i] << "\n";
 			counter++;
 		}
-
-		fitness.clear();
-		genomes.clear();
 
 		mergeParetoFronts(pf, curPf);
 		curPf.clear();
