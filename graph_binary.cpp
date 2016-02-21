@@ -98,8 +98,10 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 	// Positive integers mean there are no self-recurrent connections in the layer;
 	// negative ones mean that the layer is fully connected to its past self.
 	// The first integer must be positive, since inputs cannot connect to themselves.
+
 	assert(annTopology.size() != 1);
 	assert(annTopology.size() > 0); // self-connected networks not supported yet
+	// Note: to operate on fully connected networks, the corresponding parts must be rewritten
 
 	auto weightStrings = split(annGenotype, ' ');
 	vector<double> weightsG;
@@ -241,6 +243,20 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 		}
 	}
 
+	// Remove all disconnected nodes
+	bool disconnectedNodesPresent = true;
+	while(disconnectedNodesPresent) {
+		disconnectedNodesPresent = false;
+		for(unsigned int i=0; i<nb_nodes; i++) {
+			if(first_link_idx(i) == degrees[i]) {
+//				cout << "Removing a disconnected node " << i << endl;
+				remove_disconnected_node(i);
+				disconnectedNodesPresent = true;
+				break;
+			}
+		}
+	}
+
 	/* This function may involve a bit of graph rewriting in future, since ANNs are
 	   directional and the networks described in Blondel are not. When we have the situation
 	   when there are two nodes in the hidden layer connected recursively in both ways, but
@@ -248,6 +264,8 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 	   nondirected network becomes ambiguous. This isn't dealt with for now.
 
 	   Additionally, we may want to take absolute values of all weights.
+
+     Note: implemented at sanitize() below
 	 */
 }
 
@@ -266,7 +284,7 @@ Graph::sanitize() {
 //			cout << "node: " << node << " links[ln]: " << links[ln] << endl;
 			auto oppositeConnIt = wm.find(Connection(links[ln], node));
 			if(oppositeConnIt != wm.end() && oppositeConnIt->second == weights[ln]) {
-					wm.erase(oppositeConnIt);
+					wm.erase(oppositeConnIt); // only the connections without an opposing one with equal weights are allowed at wm
 					continue;
 			}
 			wm[Connection(node, links[ln])] = weights[ln];
@@ -292,12 +310,15 @@ Graph::sanitize() {
 		else {
 			// if there is no opposing connection, create one with equal weight
 			unsigned int pos = first_link_idx(j);
+			std::cout << "inserting new connection for node " << j << " starting pos is " << pos << " cumulative degrees is " << degrees[j];
 			while(pos <= degrees[j]) {
+				std::cout << "reading links at " << pos << ": read " << links[pos] << "\n";
 				if(links[pos] > i)
 					break;
 				else
 					pos++;
 			}
+			std::cout << " final pos is " << pos << "\n";
 			links.insert(links.begin()+pos, i);
 			weights.insert(weights.begin()+pos, wmit->second);
 			for(unsigned int degPos=j; degPos<nb_nodes; degPos++)

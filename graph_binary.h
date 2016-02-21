@@ -83,6 +83,8 @@ class Graph {
 	inline unsigned int first_link_idx(unsigned int node) const;
 
 	inline void assign_weight(unsigned int i, unsigned int j, float wgt);
+
+	inline void remove_disconnected_node(unsigned int i);
 };
 
 
@@ -161,6 +163,18 @@ Graph::assign_weight(unsigned int outNode, unsigned int inNode, float wgt) {
 		if(links[ln] == inNode)
 			weights[ln] = wgt;
 	}
+}
+
+inline void
+Graph::remove_disconnected_node(unsigned int i) {
+	nb_nodes--;
+	degrees.erase(degrees.begin()+i);
+	for(auto& link : links)
+		if(link > i)
+			link--;
+//	for(auto itLink=links.begin(); itLink!=links.end(); itLink++)
+//		if((*itLink) > i)
+//			(*itLink)--;
 }
 
 #endif // GRAPH_H
