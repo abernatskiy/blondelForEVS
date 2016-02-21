@@ -34,6 +34,28 @@ int main(int argc, char **argv)
 	testGraph3.display_raw();
 	testGraph3.display();
 
+	std::cout << std::endl << "Testing sanitization...\nBEFORE:\n";
+
+	Graph testGraph4("40 1 0 0 0 0 0.5 0.5 0 0.2 0 0.5 -0.2 0 0 0 0", topology);
+	testGraph4.display_raw();
+	testGraph4.display();
+
+	std::cout << "AFTER:\n";
+	testGraph4.sanitize();
+	testGraph4.display_raw();
+	testGraph4.display();
+
+	std::cout << "BEFORE:\n";
+
+	Graph testGraph5("39 1 0 0 0 0 0.5 0.5 0 0.2 0.5 0 0 0 0 0 0", topology);
+	testGraph5.display_raw();
+	testGraph5.display();
+
+	std::cout << "AFTER:\n";
+	testGraph5.sanitize();
+	testGraph5.display_raw();
+	testGraph5.display();
+
 	return 0;
 }
 

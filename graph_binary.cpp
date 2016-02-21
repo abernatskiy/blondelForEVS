@@ -67,7 +67,6 @@ Graph::Graph(const char *filename, const char *filename_w, int type) {
 
   // IF WEIGHTED : read weights: 4 bytes for each link (each link is counted twice)
   weights.resize(0);
-  total_weight=0;
   if (type==WEIGHTED) {
     ifstream finput_w;
     finput_w.open(filename_w,fstream::in | fstream::binary);
@@ -76,6 +75,7 @@ Graph::Graph(const char *filename, const char *filename_w, int type) {
   }
 
   // Compute total weight
+  total_weight=0;
   for (unsigned int i=0 ; i<nb_nodes ; i++) {
     total_weight += (double)weighted_degree(i);
   }
@@ -152,7 +152,6 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 				pos++;
 				if(curWeight != 0.0) {
 					nb_links++;
-					total_weight += curWeight;
 					outNode = floor + i;
 					inNode = floor + prevLayerSize + j;
 					degrees[outNode]++; degrees[inNode]++;
@@ -167,7 +166,6 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 					pos++;
 					if(curWeight != 0.0) {
 						recurrentLinks++;
-						total_weight += curWeight;
 						outNode = floor + i;
 						inNode = floor + j;
 						degrees[outNode]++;
@@ -178,7 +176,6 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 		}
 	}
 	nb_links = 2*nb_links + recurrentLinks;
-	total_weight *= 2.0;
 
 	// Obtain cumulative degree
 	for(auto it=degrees.begin()+1; it!=degrees.end(); it++)
@@ -257,6 +254,11 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 		}
 	}
 
+	// Compute the total weight
+	total_weight = 0.0;
+	for(auto w : weights)
+		total_weight += w;
+
 	/* This function may involve a bit of graph rewriting in future, since ANNs are
 	   directional and the networks described in Blondel are not. When we have the situation
 	   when there are two nodes in the hidden layer connected recursively in both ways, but
@@ -310,13 +312,15 @@ Graph::sanitize() {
 		else {
 			// if there is no opposing connection, create one with equal weight
 			unsigned int pos = first_link_idx(j);
-			std::cout << "inserting new connection for node " << j << " starting pos is " << pos << " cumulative degrees is " << degrees[j];
-			while(pos <= degrees[j]) {
+			std::cout << "inserting new connection for node " << j << " starting pos is " << pos << " cumulative degrees is " << degrees[j] << endl;
+			while(links[pos] < i) {
 				std::cout << "reading links at " << pos << ": read " << links[pos] << "\n";
-				if(links[pos] > i)
+//				if(links[pos] > i)
+//					break;
+//				else
+				pos++;
+				if(pos >= degrees[j])
 					break;
-				else
-					pos++;
 			}
 			std::cout << " final pos is " << pos << "\n";
 			links.insert(links.begin()+pos, i);
