@@ -21,25 +21,8 @@
 #include <utility>
 #include <algorithm>
 #include "graph_binary.h"
-#include "math.h"
-
-vector<string>& split(const string& s, char delim, vector<string>& elems) {
-	stringstream ss(s);
-	string item;
-	while (getline(ss, item, delim))
-		elems.push_back(item);
-	return elems;
-}
-
-vector<string> split(const string& s, char delim) {
-	vector<string> elems;
-	split(s, delim, elems);
-	return elems;
-}
-
-inline int iabs(int i) {
-	return i>0 ? i : -1*i;
-}
+#include <math.h>
+#include "misc.h"
 
 Graph::Graph() {
   nb_nodes     = 0;
