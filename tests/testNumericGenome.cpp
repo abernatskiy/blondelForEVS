@@ -28,5 +28,10 @@ int main(int argc, char** argv) {
 				<< "d(ng0,ng2)=" << ng0.distance(ng2) << endl
 				<< "d(ng2,ng0)=" << ng2.distance(ng0) << endl;
 
+	NumericGenome ng3("28900000 0.0 -1.0 0.0 -1.0 -1.0 0.0 0.0 1.0 -1.0 0.0 -1.0 0.0 -1.0 -1.0 -1.0 1.0");
+	cout << endl << "Distance between identical vectors:" << endl
+				<< "d(ng2,ng2)=" << ng2.distance(ng2) << endl
+				<< "d(ng2,ng3=ng2)=" << ng3.distance(ng2) << endl;
+
 	return 0;
 }
