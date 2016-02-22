@@ -13,6 +13,8 @@
 #define FS_CHUNK 10000
 #endif // FS_CHUNK
 
+#define ALLOW_ZERO_DISTANCE
+
 #ifndef DISTANCE_CAP
 #define DISTANCE_CAP 3
 #endif // DISTANCE_CAP
@@ -119,7 +121,11 @@ int main(int argc, char **argv) {
 		for(unsigned int i=0; i<curChunkSize; i++) {
 			for(unsigned int curpfi=0; curpfi<baseGenomes.size(); curpfi++) {
 				curDist = baseGenomes[curpfi].distance(NumericGenome(genomes[i]));
+				#ifdef ALLOW_ZERO_DISTANCE
+				if(curDist<distanceCap)
+				#else // ALLOW_ZERO_DISTANCE
 				if(curDist<distanceCap && curDist!=0)
+				#endif // ALLOW_ZERO_DISTANCE
 					updateParetoFront(curPfs[curpfi], {fitness[i], curDist*(-1)}, genomes[i]);
 			}
 			if(counter%100000 == 0 && counter != 0)
