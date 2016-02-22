@@ -3,7 +3,7 @@
 CC=g++
 CFLAGS=-std=c++11 -O2 -msse2 -ffast-math -m64 -fno-rtti -fno-exceptions -fno-stack-protector ${MORECFLAGS} -g -ggdb -Wall
 LDFLAGS=-m64 -g -ggdb -Wall
-EXEC=paretoFitnessDistance # paretoFitnessModularity
+EXEC=paretoFitnessDistance paretoFitnessModularity
 TESTS=tests/testGraph tests/testPareto tests/testNumericGenome
 OBJPARETO=pareto.o
 OBJMOD=graph_binary.o community.o paretoFitnessModularity.o ${OBJPARETO}

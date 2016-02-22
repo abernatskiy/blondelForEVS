@@ -25,7 +25,7 @@
 #define GENE_FROM_STR(X) std::stod(X)
 
 #define DM if(DEBUG)
-#define DEBUG true
+#define DEBUG false
 
 #include "pareto.h"
 #include "numeric_genome.h"
