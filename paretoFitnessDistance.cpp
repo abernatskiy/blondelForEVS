@@ -103,8 +103,10 @@ int main(int argc, char **argv) {
 				curChunkSize = i;
 				break;
 			}
-			if(curline[0]=='#' || curline=="")
+			if(curline[0]=='#' || curline=="") {
+				i--;
 				continue;
+			}
 			auto spacepos = curline.find(' ');
 			fitness[i] = std::stod(curline.substr(0, spacepos));
 			genomes[i] = curline.substr(spacepos+1);
@@ -130,14 +132,14 @@ int main(int argc, char **argv) {
 			curPfs[curpfi].clear();
 		}
 
-/*		DM {
+		DM {
 			for(unsigned int curpfi=0; curpfi<baseGenomes.size(); curpfi++) {
 				std::cout << "Pareto front for " << baseGenomes[curpfi].str() << ":\n";
 				std::cout << str(pfs[curpfi]) << "\n";
 			}
 			std::cout << "\n" << std::flush;
 		}
-*/	}
+	}
 
 	ifs.close();
 

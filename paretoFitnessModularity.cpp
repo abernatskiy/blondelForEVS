@@ -153,8 +153,10 @@ int main(int argc, char **argv) {
 				curChunkSize = i;
 				break;
 			}
-			if(curline[0]=='#' || curline=="")
+			if(curline[0]=='#' || curline=="") {
+				i--;
 				continue;
+			}
 			auto spacepos = curline.find(' ');
 			fitness[i] = std::stod(curline.substr(0, spacepos));
 			genomes[i] = curline.substr(spacepos+1);
