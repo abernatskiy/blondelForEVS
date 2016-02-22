@@ -16,7 +16,7 @@
 #define ALLOW_ZERO_DISTANCE
 
 #ifndef DISTANCE_CAP
-#define DISTANCE_CAP 3
+#define DISTANCE_CAP 32
 #endif // DISTANCE_CAP
 
 #define OUTPUT_DIR "fitnessDistanceParetoFronts"
