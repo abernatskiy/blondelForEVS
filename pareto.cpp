@@ -7,11 +7,14 @@
 bool firstDominatesSecond(const ObjSpacePoint& first, const ObjSpacePoint& second) {
 	assert(first.size() == second.size());
 	// the objectives are minimized
-	bool dominates = true;
-	for(unsigned int i=0; i<first.size(); i++)
-		if(second[i] >= first[i])
-			dominates = false;
-	return dominates;
+	static bool isEqual = true;
+	for(unsigned int i=0; i<first.size(); i++) {
+		if(second[i] > first[i])
+			return false;
+		if(second[i] < first[i])
+			isEqual = false;
+	}
+	return !isEqual;
 }
 
 void updateParetoFront(ParetoFront& pf, ObjSpacePoint osp, std::string genome) {
