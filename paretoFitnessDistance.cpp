@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <cassert>
 #include <sstream>
+#include <iomanip>
+#include <unistd.h> // sleep() for debug
 
 #ifndef FS_CHUNK
 #define FS_CHUNK 10000
@@ -14,6 +16,8 @@
 #ifndef DISTANCE_CAP
 #define DISTANCE_CAP 3
 #endif // DISTANCE_CAP
+
+#define OUTPUT_DIR "fitnessDistanceParetoFronts"
 
 #define GENOME_SIZE 16
 #define GENOME_SIZE_WITH_ID 17
@@ -25,15 +29,21 @@
 
 #include "pareto.h"
 #include "numeric_genome.h"
+#include "misc.h"
 
 int main(int argc, char **argv) {
 	if(argc != 3) {
 		std::cout << "Usage: paretoFitnessDistance <baseGenomesFile> <columnsToIgnore>\n";
 		return 1;
 	}
-	unsigned int ignoreColumns = std::stoul(argv[2]);
-	std::string baseGenomesFileName(argv[1]);
-	unsigned int distanceCap = DISTANCE_CAP;
+	const unsigned int ignoreColumns = std::stoul(argv[2]);
+	const std::string baseGenomesFileName(argv[1]);
+	const unsigned int distanceCap = DISTANCE_CAP;
+	const std::string outDir = OUTPUT_DIR;
+	if(!isDir(outDir)) {
+		std::cout << "Folder " << outDir << " does not exist, please create it\n";
+		return 1;
+	}
 
 	// Read the set of genomes to consider from the input file
 	std::ifstream baseGenomesFileStream;
@@ -41,25 +51,27 @@ int main(int argc, char **argv) {
 	assert(baseGenomesFileStream.is_open());
 
 	std::vector<NumericGenome> baseGenomes;
+	std::vector<std::string> baseGenomesMetadata;
 	{
 		std::string curline;
 		unsigned int pos;
 		while(std::getline(baseGenomesFileStream, curline)) {
 			if(curline[0]!='#' && curline!="") {
 				pos = 0;
-				for(unsigned int i=0; i<ignoreColumns; i++) {
+				for(unsigned int i=0; i<ignoreColumns; i++)
 					pos = curline.find(' ', pos+1);
-				}
-//				DM std::cout << "Read a genome: " << curline.substr(pos+1) << "\n" << std::flush;
 				baseGenomes.push_back(NumericGenome(curline.substr(pos+1)));
+				baseGenomesMetadata.push_back(curline.substr(0, pos));
 			}
 		}
 	}
 
 	DM {
 		std::cout << "Base genomes:\n\n";
-		for(auto bg : baseGenomes)
-			bg.debugPrint();
+		for(unsigned int curpfi=0; curpfi<baseGenomes.size(); curpfi++) {
+			baseGenomes[curpfi].debugPrint();
+			std::cout << " metadata: " << baseGenomesMetadata[curpfi] << ".\n";
+		}
 		std::cout << "\n";
 	}
 
@@ -106,7 +118,7 @@ int main(int argc, char **argv) {
 			for(unsigned int curpfi=0; curpfi<baseGenomes.size(); curpfi++) {
 				curDist = baseGenomes[curpfi].distance(NumericGenome(genomes[i]));
 				if(curDist < distanceCap)
-					updateParetoFront(curPfs[curpfi], {fitness[i], curDist}, genomes[i]);
+					updateParetoFront(curPfs[curpfi], {fitness[i], curDist*(-1)}, genomes[i]);
 			}
 			if(counter%100000 == 0 && counter != 0)
 				std::cout << "Considered 10^5 evaluations recently. Current genome is " << genomes[i] << "\n";
@@ -118,24 +130,32 @@ int main(int argc, char **argv) {
 			curPfs[curpfi].clear();
 		}
 
-		DM {
+/*		DM {
 			for(unsigned int curpfi=0; curpfi<baseGenomes.size(); curpfi++) {
 				std::cout << "Pareto front for " << baseGenomes[curpfi].str() << ":\n";
 				std::cout << str(pfs[curpfi]) << "\n";
 			}
 			std::cout << "\n" << std::flush;
 		}
-	}
+*/	}
 
 	ifs.close();
 
-/*	std::ofstream ofs;
-	ofs.open("paretoFrontOfFitnessVsModularity.log", std::ofstream::out | std::ofstream::trunc);
-	assert(ofs.is_open());
-	ofs << "# Columns: score modularity id indivDesc0 indivDesc2 ...\n";
-	ofs << str(pf);
-	ofs.close();
-*/
+	// Writing the results
+	for(unsigned int curpfi=0; curpfi<baseGenomes.size(); curpfi++) {
+		std::ostringstream ofnstream;
+		ofnstream << outDir << "/fitnessVsDistance" << std::setfill('0') << std::setw(10) << curpfi << ".log";
+
+		std::ofstream ofs;
+		ofs.open(ofnstream.str(), std::ofstream::out | std::ofstream::trunc);
+		assert(ofs.is_open());
+		ofs << "# Fitness vs distance Pareto front for " << baseGenomes[curpfi].str() << "\n"
+				<< "# The individual was supplied with the following additional data: " << baseGenomesMetadata[curpfi] << "\n"
+				<< "# Columns: score distance id indivDesc0 indivDesc2 ...\n"
+				<< str(pfs[curpfi]);
+		ofs.close();
+	}
+
 	return 0;
 }
 
