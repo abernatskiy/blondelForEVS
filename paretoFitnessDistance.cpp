@@ -117,7 +117,7 @@ int main(int argc, char **argv) {
 		for(unsigned int i=0; i<curChunkSize; i++) {
 			for(unsigned int curpfi=0; curpfi<baseGenomes.size(); curpfi++) {
 				curDist = baseGenomes[curpfi].distance(NumericGenome(genomes[i]));
-				if(curDist < distanceCap)
+				if(curDist<distanceCap && curDist!=0)
 					updateParetoFront(curPfs[curpfi], {fitness[i], curDist*(-1)}, genomes[i]);
 			}
 			if(counter%100000 == 0 && counter != 0)
