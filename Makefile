@@ -1,23 +1,30 @@
 #!/bin/bash
 
 CC=g++
-CFLAGS=-std=c++11 -O2 -msse2 -ffast-math -m64 -fno-rtti -fno-exceptions -fno-stack-protector ${MORECFLAGS} -g -ggdb -Wall
+CFLAGS=-std=c++11 -O2 -msse2 -ffast-math -m64 -fno-rtti -fno-exceptions -fno-stack-protector ${DISTFLAGS} ${MORECFLAGS} -g -ggdb -Wall
 LDFLAGS=-m64 -g -ggdb -Wall
-EXEC=paretoFitnessDistance paretoFitnessModularity
 TESTS=tests/testGraph tests/testPareto tests/testNumericGenome
 OBJPARETO=pareto.o
 OBJMOD=graph_binary.o community.o paretoFitnessModularity.o ${OBJPARETO}
 OBJDIST=numeric_genome.o paretoFitnessDistance.o ${OBJPARETO}
 
-all: $(EXEC)
+paretoFitnessDistanceForModularity: DISTFLAGS = -DOUTPUT_DIR="\"fitnessDistanceParetoFrontsForModularity\"" -DCOLUMNS_TO_IGNORE=2
+paretoFitnessDistanceForSparsity: DISTFLAGS = -DOUTPUT_DIR="\"fitnessDistanceParetoFrontsForSparsity\"" -DCOLUMNS_TO_IGNORE=1
+
+all: paretoFitnessModularity
+	make paretoFitnessDistanceForModularity
+	make paretoFitnessDistanceForSparsity
 
 tests: ${TESTS}
 
 paretoFitnessModularity : $(OBJMOD)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-paretoFitnessDistance : ${OBJDIST}
-	$(CC) -o $@ $^ $(LDFLAGS)
+paretoFitnessDistanceForModularity : clean ${OBJDIST}
+	$(CC) -o $@ ${OBJDIST} $(LDFLAGS)
+
+paretoFitnessDistanceForSparsity : clean ${OBJDIST}
+	$(CC) -o $@ ${OBJDIST} $(LDFLAGS)
 
 tests/testGraph : graph_binary.o tests/testGraph.o
 	$(CC) -o $@ $^ $(LDFLAGS)

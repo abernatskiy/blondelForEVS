@@ -19,7 +19,13 @@
 #define DISTANCE_CAP 32
 #endif // DISTANCE_CAP
 
+#ifndef OUTPUT_DIR
 #define OUTPUT_DIR "fitnessDistanceParetoFronts"
+#endif // OUTPUT_DIR
+
+#ifndef COLUMNS_TO_IGNORE
+#define COLUMNS_TO_IGNORE 2
+#endif // COLUMNS_TO_IGNORE
 
 #define GENOME_SIZE 16
 #define GENOME_SIZE_WITH_ID 17
@@ -34,12 +40,12 @@
 #include "misc.h"
 
 int main(int argc, char **argv) {
-	if(argc != 3) {
-		std::cout << "Usage: paretoFitnessDistance <baseGenomesFile> <columnsToIgnore>\n";
+	if(argc != 2) {
+		std::cout << "Usage: paretoFitnessDistanceFor<pftype> <baseGenomesFile>\n";
 		return 1;
 	}
-	const unsigned int ignoreColumns = std::stoul(argv[2]);
 	const std::string baseGenomesFileName(argv[1]);
+	const unsigned int ignoreColumns = COLUMNS_TO_IGNORE;
 	const unsigned int distanceCap = DISTANCE_CAP;
 	const std::string outDir = OUTPUT_DIR;
 	if(!isDir(outDir)) {
