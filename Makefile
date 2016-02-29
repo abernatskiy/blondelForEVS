@@ -20,6 +20,9 @@ tests: ${TESTS}
 paretoFitnessModularity : $(OBJMOD)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
+gpModularity : graph_binary.o community.o gpModularity.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
 paretoFitnessDistanceForModularity : clean ${OBJDIST}
 	$(CC) -o $@ ${OBJDIST} $(LDFLAGS)
 
