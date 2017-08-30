@@ -79,7 +79,9 @@ void removeSubstrs(std::string& s, const std::string& substr) {
 int main(int argc, char **argv) {
 //	unsigned int skipColumns = std::stoi(argv[1]);
 
-	std::vector<int> annTopology = {4, -2, 2};
+	std::vector<int> annTopology = {4, -2, 2}; // For info on the network topology description format,
+	                                           // see the comment for the Graph class that takes network
+	                                           // topology as an argument (currently lines 78-83 of graph_binary.cpp)
 
 	std::vector<std::string> annGenomes;
 	for(std::string line; std::getline(std::cin, line);) {
