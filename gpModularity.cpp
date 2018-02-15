@@ -79,9 +79,15 @@ void removeSubstrs(std::string& s, const std::string& substr) {
 int main(int argc, char **argv) {
 //	unsigned int skipColumns = std::stoi(argv[1]);
 
-	std::vector<int> annTopology = {4, -2, 2}; // For info on the network topology description format,
-	                                           // see the comment for the Graph class that takes network
-	                                           // topology as an argument (currently lines 78-83 of graph_binary.cpp)
+	// Set your network topology here and recompile.
+	// For info on the network topology description format,
+	// see the comment for the Graph class that takes network
+	// topology as an argument (currently lines 78-83 of graph_binary.cpp)
+	std::vector<int> annTopology = {}; // fully connected network, complete adjacency matrix expected in form of concatenated space-separated rows
+//	std::vector<int> annTopology = {4, -2, 2}; // network with 4 inputs, 2 hidden neurons with recurrent connections and 2 outputs
+                                               // Expected network format is a concatenation of inter-layer connections weight matrices represented as
+                                               // concatenated space-separated rows. For recurrent layers include the recurrent connections matrix
+                                               // after the matrix of the non-recurrent layer directly above it (inputs are up).
 
 	std::vector<std::string> annGenomes;
 	for(std::string line; std::getline(std::cin, line);) {

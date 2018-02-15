@@ -82,10 +82,6 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 	// negative ones mean that the layer is fully connected to its past self.
 	// The first integer must be positive, since inputs cannot connect to themselves.
 
-	assert(annTopology.size() != 1);
-	assert(annTopology.size() > 0); // self-connected networks not supported yet
-	// Note: to operate on fully connected networks, the corresponding parts must be rewritten
-
 	auto weightStrings = split(annGenotype, ' ');
 	vector<double> weightsG;
 	weightsG.resize(weightStrings.size()-1);
@@ -93,13 +89,69 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 
 	unsigned int nbWeakLinks; // number of links including zero-weight ones
 
-	// Compute number of nodes and links
 	if(annTopology.size() == 0) {
-		nb_nodes = weightStrings.size();
+
+		/***************** FULLY CONNECTED NETWORK CASE *****************/
+
+		// The following piece of code takes a square root of weightStrings.size()-1, making sure that the result is an integer
+		double double_nb_nodes;
+		double fractionalPart = modf(sqrt(static_cast<double>(weightStrings.size()-1)), &double_nb_nodes);
+		assert(fractionalPart == 0.0);
+		nb_nodes = static_cast<int>(double_nb_nodes);
 		nbWeakLinks = nb_nodes*nb_nodes;
+
+		// Make sure we have enough values
+		assert(nbWeakLinks == weightsG.size());
+
+		// Iterate through all potential links to find
+		//  - nb_links
+		//  - noncumulative degrees
+		total_weight = 0.0;
+		nb_links = 0;
+		degrees.resize(nb_nodes);
+		fill(degrees.begin(), degrees.end(), 0);
+		for(unsigned int i=0; i<nb_nodes; i++) {
+			for(unsigned int j=0; j<nb_nodes; j++) {
+				if(weightsG[i*nb_nodes+j] != 0.0) {
+					nb_links++;
+					degrees[i]++; // the degree increment for input nodes is accounted for in sanitize()
+				}
+			}
+		}
+
+		// Compute cumulative degree
+		for(auto it=degrees.begin()+1; it!=degrees.end(); it++)
+			*it += *(it-1);
+
+//		cerr << "Num links: " << nb_links << "\n";
+//		for(auto it=degrees.begin(); it!=degrees.end(); it++)
+//			cerr << *it << " ";
+//		cerr << "\n" << flush;
+
+		// Iterate through all potential links once more to find actual links and weights
+		links.resize(nb_links);
+		weights.resize(nb_links);
+		vector<unsigned int> linksFound;
+		linksFound.resize(nb_nodes);
+		fill(linksFound.begin(), linksFound.end(), 0);
+		int outLinkPos, inLinkPos;
+		for(unsigned int i=0; i<nb_nodes; i++) {
+			for(unsigned int j=0; j<nb_nodes; j++) {
+				if(weightsG[i*nb_nodes+j] != 0.0) {
+					outLinkPos = first_link_idx(i)+linksFound[i];
+					links[outLinkPos] = j;
+					weights[outLinkPos] = weightsG[i*nb_nodes+j];
+					linksFound[i]++;
+					// no need to make duplicate entries of weights or links - that is taken care of in sanitize()
+				}
+			}
+		}
 	}
 	else {
-		assert(annTopology[0] > 0);
+		assert(annTopology[0] > 1);
+
+		/***************** LAYERED NETWORK CASE *****************/
+
 		nb_nodes = 0;
 		nbWeakLinks = 0;
 		for(auto layerSize : annTopology) {
@@ -111,116 +163,125 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 			if((*it) < 0)
 				nbWeakLinks += (*it) * (*it);
 		}
-	}
 
-	// Make sure we have enough values
-	assert(nbWeakLinks == weightsG.size());
+		// Make sure we have enough values
+		assert(nbWeakLinks == weightsG.size());
 
-	// Iterate through entire topology to find:
-	//  - nb_links
-	//  - total_weight
-	//  - noncumulative degrees
-	int curLayerSize, prevLayerSize, inNode, outNode, floor=0, pos=0;
-	double curWeight;
-	total_weight = 0.0;
-	int recurrentLinks = 0;
-	nb_links = 0;
-	degrees.resize(nb_nodes);
-	fill(degrees.begin(), degrees.end(), 0);
-	for(auto it=annTopology.begin()+1; it!=annTopology.end(); it++) {
-		curLayerSize = iabs(*(it)); prevLayerSize = iabs(*(it-1));
-		for(int i=0; i<prevLayerSize; i++) {
-			for(int j=0; j<curLayerSize; j++) {
-				curWeight = weightsG[pos];
-				pos++;
-				if(curWeight != 0.0) {
-					nb_links++;
-					outNode = floor + i;
-					inNode = floor + prevLayerSize + j;
-					degrees[outNode]++; degrees[inNode]++;
-				}
-			}
-		}
-		floor += prevLayerSize;
-		if((*it) < 0) {
-			for(int i=0; i<curLayerSize; i++) {
+		// Iterate through entire topology to find:
+		//  - nb_links
+		//  - noncumulative degrees
+		int curLayerSize, prevLayerSize, inNode, outNode, floor=0, pos=0;
+		double curWeight;
+		total_weight = 0.0;
+		int recurrentLinks = 0;
+		nb_links = 0;
+		degrees.resize(nb_nodes);
+		fill(degrees.begin(), degrees.end(), 0);
+		for(auto it=annTopology.begin()+1; it!=annTopology.end(); it++) {
+			curLayerSize = iabs(*(it)); prevLayerSize = iabs(*(it-1));
+			for(int i=0; i<prevLayerSize; i++) {
 				for(int j=0; j<curLayerSize; j++) {
 					curWeight = weightsG[pos];
 					pos++;
 					if(curWeight != 0.0) {
-						recurrentLinks++;
+						nb_links++;
 						outNode = floor + i;
-						inNode = floor + j;
-						degrees[outNode]++;
-						// if(inNode != outNode) degrees[inNode]++;
+						inNode = floor + prevLayerSize + j;
+						degrees[outNode]++; degrees[inNode]++; // FIXME: consider concentrating the bidirectional stuff at sanitize()
+					}
+				}
+			}
+			floor += prevLayerSize;
+			if((*it) < 0) {
+				for(int i=0; i<curLayerSize; i++) {
+					for(int j=0; j<curLayerSize; j++) {
+						curWeight = weightsG[pos];
+						pos++;
+						if(curWeight != 0.0) {
+							recurrentLinks++;
+							outNode = floor + i;
+							inNode = floor + j;
+							degrees[outNode]++;
+							// if(inNode != outNode) degrees[inNode]++;
+						}
 					}
 				}
 			}
 		}
-	}
-	nb_links = 2*nb_links + recurrentLinks;
+		nb_links = 2*nb_links + recurrentLinks;
 
-	// Obtain cumulative degree
-	for(auto it=degrees.begin()+1; it!=degrees.end(); it++)
-		*it += *(it-1);
+		// Obtain cumulative degree
+		for(auto it=degrees.begin()+1; it!=degrees.end(); it++)
+			*it += *(it-1);
 
-	// Iterate through entire topology once more to find links and weights
-	links.resize(nb_links);
-	weights.resize(nb_links);
-	vector<unsigned int> linksFound;
-	linksFound.resize(nb_nodes);
-	fill(linksFound.begin(), linksFound.end(), 0);
-	pos=0; floor=0;
-	int outLinkPos, inLinkPos;
+		// Iterate through entire topology once more to find links and weights
+		links.resize(nb_links);
+		weights.resize(nb_links);
+		vector<unsigned int> linksFound;
+		linksFound.resize(nb_nodes);
+		fill(linksFound.begin(), linksFound.end(), 0);
+		pos=0; floor=0;
+		int outLinkPos, inLinkPos;
 
-	for(auto it=annTopology.begin()+1; it!=annTopology.end(); it++) {
-		curLayerSize = iabs(*(it)); prevLayerSize = iabs(*(it-1));
-		for(int i=0; i<prevLayerSize; i++) {
-			for(int j=0; j<curLayerSize; j++) {
-				curWeight = weightsG[pos];
-				pos++;
-				if(curWeight != 0.0) {
-					outNode = floor + i;
-					inNode = floor + prevLayerSize + j;
-
-					outLinkPos = first_link_idx(outNode)+linksFound[outNode];
-					links[outLinkPos] = inNode;
-					weights[outLinkPos] = curWeight;
-					linksFound[outNode]++;
-
-					inLinkPos = first_link_idx(inNode)+linksFound[inNode];
-					links[inLinkPos] = outNode;
-					weights[inLinkPos] = curWeight;
-					linksFound[inNode]++;
-				}
-			}
-		}
-		floor += prevLayerSize;
-
-		if((*it) < 0) {
-			for(int i=0; i<curLayerSize; i++) {
+		for(auto it=annTopology.begin()+1; it!=annTopology.end(); it++) {
+			curLayerSize = iabs(*(it)); prevLayerSize = iabs(*(it-1));
+			for(int i=0; i<prevLayerSize; i++) {
 				for(int j=0; j<curLayerSize; j++) {
 					curWeight = weightsG[pos];
 					pos++;
 					if(curWeight != 0.0) {
 						outNode = floor + i;
-						inNode = floor + j;
+						inNode = floor + prevLayerSize + j;
 
 						outLinkPos = first_link_idx(outNode)+linksFound[outNode];
 						links[outLinkPos] = inNode;
 						weights[outLinkPos] = curWeight;
 						linksFound[outNode]++;
 
-						// if(inNode != outNode) {
-						// inLinkPos = first_link_idx(inNode)+linksFound[inNode];
-						// links[inLinkPos] = outNode;
-						// weights[inLinkPos] = curWeight;
-						// linksFound[inNode]++;
-						// }
+						inLinkPos = first_link_idx(inNode)+linksFound[inNode];
+						links[inLinkPos] = outNode;
+						weights[inLinkPos] = curWeight;
+						linksFound[inNode]++;
+					}
+				}
+			}
+			floor += prevLayerSize;
+
+			if((*it) < 0) {
+				for(int i=0; i<curLayerSize; i++) {
+					for(int j=0; j<curLayerSize; j++) {
+						curWeight = weightsG[pos];
+						pos++;
+						if(curWeight != 0.0) {
+							outNode = floor + i;
+							inNode = floor + j;
+
+							outLinkPos = first_link_idx(outNode)+linksFound[outNode];
+							links[outLinkPos] = inNode;
+							weights[outLinkPos] = curWeight;
+							linksFound[outNode]++;
+
+							// if(inNode != outNode) {
+							// inLinkPos = first_link_idx(inNode)+linksFound[inNode];
+							// links[inLinkPos] = outNode;
+							// weights[inLinkPos] = curWeight;
+							// linksFound[inNode]++;
+							// }
+						}
 					}
 				}
 			}
 		}
+		/* This case may involve a bit of graph rewriting in future, since ANNs are
+		   directional and the networks described in Blondel are not. When we have the situation
+		   when there are two nodes in the hidden layer connected recursively in both ways, but
+		   with nonequal weights in forward and backward directions, the reduction to the
+		   nondirected network becomes ambiguous. This isn't dealt with for now.
+
+		   Additionally, we may want to take absolute values of all weights.
+
+	     Note: implemented at sanitize() below
+		 */
 	}
 
 	// Remove all disconnected nodes
@@ -242,16 +303,6 @@ Graph::Graph(const string& annGenotype, const vector<int>& annTopology) {
 	for(auto w : weights)
 		total_weight += w;
 
-	/* This function may involve a bit of graph rewriting in future, since ANNs are
-	   directional and the networks described in Blondel are not. When we have the situation
-	   when there are two nodes in the hidden layer connected recursively in both ways, but
-	   with nonequal weights in forward and backward directions, the reduction to the
-	   nondirected network becomes ambiguous. This isn't dealt with for now.
-
-	   Additionally, we may want to take absolute values of all weights.
-
-     Note: implemented at sanitize() below
-	 */
 }
 
 void

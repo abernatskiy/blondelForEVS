@@ -7,6 +7,7 @@ TESTS=tests/testGraph tests/testPareto tests/testNumericGenome
 OBJPARETO=pareto.o
 OBJMOD=graph_binary.o community.o paretoFitnessModularity.o ${OBJPARETO}
 OBJDIST=numeric_genome.o paretoFitnessDistance.o ${OBJPARETO}
+EXEC=gpModularity paretoFitnessModularity paretoFitnessDistanceForModularity paretoFitnessDistanceForSparsity
 
 paretoFitnessDistanceForModularity: DISTFLAGS = -DOUTPUT_DIR="\"fitnessDistanceParetoFrontsForModularity\"" -DCOLUMNS_TO_IGNORE=2
 paretoFitnessDistanceForSparsity: DISTFLAGS = -DOUTPUT_DIR="\"fitnessDistanceParetoFrontsForSparsity\"" -DCOLUMNS_TO_IGNORE=1
@@ -20,8 +21,8 @@ tests: ${TESTS}
 paretoFitnessModularity : $(OBJMOD)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-gpModularity : graph_binary.o community.o gpModularity.o
-	$(CC) -o $@ $^ $(LDFLAGS)
+gpModularity : clean graph_binary.o community.o gpModularity.o
+	$(CC) -o $@ graph_binary.o community.o gpModularity.o $(LDFLAGS)
 
 paretoFitnessDistanceForModularity : clean ${OBJDIST}
 	$(CC) -o $@ ${OBJDIST} $(LDFLAGS)
